@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, ScrollView, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { CheckBox } from 'react-native-elements';
 
 const App = () => {
   const [toDos, setToDos] = useState([]);
@@ -12,7 +11,7 @@ const App = () => {
 
   // load todos on launch
   useEffect(() => {
-    axios.get('http://192.168.40.108:3001/load').then((res) => setToDos(res.data));
+    axios.get('http://localhost:3001/load').then((res) => setToDos(res.data));
   }, []);
 
   // add or edit item
@@ -36,54 +35,33 @@ const App = () => {
 
   // save to backend
   const handleSave = () => {
-    axios.post('http://192.168.40.108:3001/save', { todos: toDos })
+    axios.post('http://localhost:3001/save', { todos: toDos })
     .then(() => alert('Saved!'))
     .catch(err => console.error('Save error:', err));
   };
 
   // clear all
   const handleClear = () => {
-    axios.get('http://192.168.40.108:3001/clear').then(() => setToDos([]));
+    axios.get('http://localhost:3001/clear').then(() => setToDos([]));
   };
-
-  // checkbox selection
-  const toggleCheckbox = (index) => {
-    if (selectedItems.includes(index)) {
-      setSelectedItems(selectedItems.filter((i) => i !== index));
-    } else {
-      setSelectedItems([...selectedItems, index]);
-    }
-  };
-  
-  // delete items in bulk
-  const handleBulkDelete = () => {
-    setToDos(toDos.filter((_, index) => !selectedItems.includes(index)));
-    setSelectedItems([]);
-  };
-
-  // select or deselect all checkboxes
-  const handleSelectAll = () => {
-    if (selectedItems.length === toDos.length) {
-      setSelectedItems([]); // Deselect all
-    } else {
-      setSelectedItems(toDos.map((_, index) => index)); // Select all
-    }
-  };
-  
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>My ToDo App </Text>
+      <View style={styles.header}>
+        <Text style={styles.headerText}>Item</Text>
+        <View style={styles.headerEditDelete}>
+          <Text style={styles.headerText}>Edit</Text>
+          <Text style={styles.headerText}>Delete</Text>
+        </View>
+      </View>
       <FlatList 
-        data={toDos}
-        keyExtractor={(item, index) => index.toString()}
+        style={styles.flatList}
+        data={toDos} 
+        keyExtractor={(item, index) => index.toString()} 
         renderItem={({ item, index }) => (
           <View style={styles.item}>
-            <CheckBox
-              checked={selectedItems.includes(index)}
-              onPress={() => toggleCheckbox(index)}
-            />
-            <Text style={styles.text}>{item}</Text>
+            <Text>{item}</Text>
             <View style={styles.deleteEdit}>
               <TouchableOpacity onPress={() => { setInput(item); setEditToDos(index); }}>
                 <Icon name="edit" size={24} color="blue" />
@@ -93,21 +71,9 @@ const App = () => {
               </TouchableOpacity>
             </View>
           </View>
-        )}
+      )}
       />
       <View style={styles.bottomContainer}>
-        <View style={styles.checkActions}>
-          {toDos.length > 0 && (
-          <TouchableOpacity style={styles.selectAllButton} onPress={handleSelectAll}>
-            <Text style={styles.buttonText}>{selectedItems.length === toDos.length ? 'Deselect All' : 'Select All'}</Text>
-          </TouchableOpacity>
-          )}
-          {selectedItems.length > 0 && (
-            <TouchableOpacity style={styles.bulkDeleteButton} onPress={handleBulkDelete}>
-              <Text style={styles.buttonText}>Delete Selected</Text>
-          </TouchableOpacity>
-          )}
-        </View>
         <View style={styles.inputContainer}>
           <TextInput style={styles.inputText} value={input} onChangeText={setInput} placeholder='Add/Edit TODO'/>
           <TouchableOpacity style={styles.addEditButton} onPress={handleAddAndEdit}>
@@ -133,8 +99,22 @@ const styles = StyleSheet.create({
   },
   title: {
     marginTop: 80,
+    marginBottom: 20,
     fontSize: 25,
     textAlign: 'center',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginHorizontal: 30,
+    borderBottomWidth: 1,
+  },
+  headerEditDelete: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  headerText: {
+    fontSize: 18,
   },
   flatList: {
     marginTop: 20,
@@ -147,11 +127,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 10,
     marginHorizontal: 20,
+    fontSize: 20,
   },
   deleteEdit: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 20,
+    gap: 35,
   },
   delete: {
     color: 'red',
@@ -164,28 +145,6 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     paddingHorizontal: 20,
   },
-  checkActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    marginVertical: 20,
-  },
-  selectAllButton: {
-    borderWidth: 1,
-    padding: 10,
-    width: 100,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  bulkDeleteButton: {
-    borderWidth: 1,
-    backgroundColor: 'red',
-    padding: 10,
-    width: 150,
-    justifyContent: 'center',
-    alignItems: 'center',
-    textAlign: 'center',
-  },  
   inputContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -232,6 +191,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     textAlign: 'center',
+    fontWeight: 'bold',
   },
 });
 
