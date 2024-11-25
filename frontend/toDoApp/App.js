@@ -1,3 +1,8 @@
+/**
+ *  "StAuth10244: I Braeden Lyman, 000370695 certify that this material is my original work. 
+ *   No other person's work has been used without due acknowledgement. 
+ *   I have not made my work available to anyone else."
+ */
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import axios from 'axios';
@@ -7,11 +12,10 @@ const App = () => {
   const [toDos, setToDos] = useState([]);
   const [input, setInput] = useState('');
   const [editToDos, setEditToDos] = useState(null);
-  const [selectedItems, setSelectedItems] = useState([]);
 
   // load todos on launch
   useEffect(() => {
-    axios.get('http://192.168.40.247:3001/load').then((res) => setToDos(res.data));
+    axios.get('http://localhost:3001/load').then((res) => setToDos(res.data));
   }, []);
 
   // add or edit item
@@ -35,14 +39,14 @@ const App = () => {
 
   // save to backend
   const handleSave = () => {
-    axios.post('http://192.168.40.247:3001/save', { todos: toDos })
+    axios.post('http://localhost:3001/save', { todos: toDos })
     .then(() => alert('Saved!'))
     .catch(err => console.error('Save error: ', err));
   };
 
   // restore items
   const handleRestore = () => {
-    axios.get('http://192.168.40.247:3001/load')
+    axios.get('http://localhost:3001/load')
       .then((res) => {
         setToDos(res.data);
         alert('Restored!');
@@ -53,7 +57,7 @@ const App = () => {
 
   // clear all
   const handleClear = () => {
-    axios.get('http://192.168.40.247:3001/clear')
+    axios.get('http://localHost:3001/clear')
     .then(() => {
       setToDos([])
       alert('Cleared!');
@@ -112,6 +116,7 @@ const App = () => {
   );
 };
 
+// styles 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
