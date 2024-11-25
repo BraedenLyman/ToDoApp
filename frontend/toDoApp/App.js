@@ -11,7 +11,7 @@ const App = () => {
 
   // load todos on launch
   useEffect(() => {
-    axios.get('http://localhost:3001/load').then((res) => setToDos(res.data));
+    axios.get('http://192.168.40.247:3001/load').then((res) => setToDos(res.data));
   }, []);
 
   // add or edit item
@@ -35,19 +35,48 @@ const App = () => {
 
   // save to backend
   const handleSave = () => {
-    axios.post('http://localhost:3001/save', { todos: toDos })
+    axios.post('http://192.168.40.247:3001/save', { todos: toDos })
     .then(() => alert('Saved!'))
-    .catch(err => console.error('Save error:', err));
+    .catch(err => console.error('Save error: ', err));
   };
+
+  // restore items
+  const handleRestore = () => {
+    axios.get('http://192.168.40.247:3001/load')
+      .then((res) => {
+        setToDos(res.data);
+        alert('Restored!');
+      })
+      .catch(err => console.error('Restore error: ', err));
+  };
+
 
   // clear all
   const handleClear = () => {
-    axios.get('http://localhost:3001/clear').then(() => setToDos([]));
+    axios.get('http://192.168.40.247:3001/clear')
+    .then(() => {
+      setToDos([])
+      alert('Cleared!');
+    })
+    .catch(err => console.error('Clear error: ', err));
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>My ToDo App </Text>
+      <View style={styles.topContainer}>
+        <View style={styles.buttonContain}>
+          <TouchableOpacity style={[styles.button, styles.saveColor]} onPress={handleSave}>
+            <Text style={styles.buttonText}>Save</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.button, styles.restoreColor]} onPress={handleRestore}>
+            <Text style={[styles.buttonText, styles.restoreText]}>Restore</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.button, styles.clearColor]} onPress={handleClear}>
+            <Text style={styles.buttonText}>Clear</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
       <View style={styles.header}>
         <Text style={styles.headerText}>Item</Text>
         <View style={styles.headerEditDelete}>
@@ -73,21 +102,11 @@ const App = () => {
           </View>
       )}
       />
-      <View style={styles.bottomContainer}>
-        <View style={styles.inputContainer}>
-          <TextInput style={styles.inputText} value={input} onChangeText={setInput} placeholder='Add/Edit TODO'/>
-          <TouchableOpacity style={styles.addEditButton} onPress={handleAddAndEdit}>
-            <Text style={styles.buttonText}>{editToDos !== null ? 'Edit' : 'Add'}</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.buttonContain}>
-          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-            <Text style={styles.buttonText}>Save</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.clearButton} onPress={handleClear}>
-            <Text style={styles.buttonText}>Clear</Text>
-          </TouchableOpacity>
-        </View>
+      <View style={styles.inputContainer}>
+        <TextInput style={styles.inputText} value={input} onChangeText={setInput} placeholder='Add/Edit TODO'/>
+        <TouchableOpacity style={styles.addEditButton} onPress={handleAddAndEdit}>
+          <Text style={styles.buttonText}>{editToDos !== null ? 'Edit' : 'Add'}</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -102,6 +121,41 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     fontSize: 25,
     textAlign: 'center',
+  },
+  topContainer: {
+    paddingTop: 40,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
+  },
+  buttonContain: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    marginTop: 20,
+    marginBottom: 30,
+  },
+  button: {
+    borderWidth: 1,
+    width: 70,
+    height: 37,
+    padding: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  saveColor: {
+    backgroundColor: 'green',
+  },
+  restoreColor: {
+    backgroundColor: 'blue',
+  },  
+  restoreText: { 
+    color: 'white',
+  },
+  clearColor: {
+    backgroundColor: 'red',
+  },
+  buttonText: {
+    textAlign: 'center',
+    fontWeight: 'bold',
   },
   header: {
     flexDirection: 'row',
@@ -140,15 +194,11 @@ const styles = StyleSheet.create({
   edit: {
     color: 'blue',
   },
-  bottomContainer: {
-    paddingTop: 40,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
-  },
   inputContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginHorizontal: 10,
+    marginBottom: 20,
   },
   inputText: {
     flex: 1,
@@ -157,12 +207,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginHorizontal: 20,
   },
-  buttonContain: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    marginTop: 20,
-    marginBottom: 30,
-  },
   addEditButton: {
     borderWidth: 1,
     width: 70,
@@ -170,28 +214,6 @@ const styles = StyleSheet.create({
     padding: 5,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  saveButton: {
-    borderWidth: 1,
-    width: 70,
-    height: 37,
-    padding: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'green',
-  },
-  clearButton: {
-    borderWidth: 1,
-    width: 70,
-    height: 37,
-    padding: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'red',
-  },
-  buttonText: {
-    textAlign: 'center',
-    fontWeight: 'bold',
   },
 });
 
